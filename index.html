@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diploma Project: FACTS Device Power System Simulation</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121826;
+            color: #ffffff;
+            margin: 0;
+            padding: 15px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #38bdf8;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+        }
+
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Control Box */
+        .control-panel {
+            flex: 1;
+            min-width: 280px;
+            background-color: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+
+        .control-panel h2 {
+            color: #38bdf8;
+            font-size: 1.2em;
+            margin-top: 0;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        .option-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        .btn-run {
+            width: 100%;
+            padding: 12px;
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-run:hover {
+            background-color: #0369a1;
+        }
+
+        /* Toggle Button */
+        .toggle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider-round {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #64748b;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider-round:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider-round { background-color: #22c55e; }
+        input:checked + .slider-round:before { transform: translateX(22px); }
+
+        /* Output Dashboard */
+        .display-panel {
+            flex: 2;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Result Banner */
+        .status-box {
+            padding: 12px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+
+        .status-stable { background-color: #14532d; color: #4ade80; border: 1px solid #22c55e; }
+        .status-unstable { background-color: #7f1d1d; color: #f87171; border: 1px solid #ef4444; }
+
+        /* System Diagram */
+        .diagram-box {
+            background-color: #1e293b;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        canvas {
+            width: 100%;
+            background-color: #0b1120;
+            border-radius: 6px;
+        }
+
+        .graph-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .graph-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Power System Stability Improvement Using FACTS</h1>
+    <div class="subtitle">Simulation: Single Machine Infinite Bus (SMIB) with Midpoint STATCOM / SVC</div>
+
+    <div class="main-container">
+        
+        <!-- Controls Panel -->
+        <div class="control-panel">
+            <h2>Control Panel</h2>
+
+            <div class="toggle-btn">
+                <span>FACTS Device (STATCOM):</span>
+                <label class="switch">
+                    <input type="checkbox" id="factsSwitch" checked>
+                    <span class="slider-round"></span>
+                </label>
+            </div>
+
+            <div class="option-group">
+                <label>Fault Duration (Seconds): <span id="faultVal" style="color:#38bdf8;">0.30 s</span></label>
+                <input type="range" id="faultSlider" min="0.10" max="0.50" step="0.02" value="0.30">
+                <small style="color:#94a3b8;">Longer fault = Generator accelerates more.</small>
+            </div>
+
+            <div class="option-group">
+                <label>Generator Power Input (P<sub>m</sub>): <span id="pmVal" style="color:#38bdf8;">0.8 pu</span></label>
+                <input type="range" id="pmSlider" min="0.4" max="1.0" step="0.1" value="0.8">
+            </div>
+
+            <button class="btn-run" onclick="runSimulation()">Run Simulation</button>
+        </div>
+
+        <!-- Displays & Graphs -->
+        <div class="display-panel">
+            
+            <!-- Result Banner -->
+            <div id="resultBanner" class="status-box status-stable">
+                SYSTEM STATE: STABLE (Synchronism Maintained)
+            </div>
+
+            <!-- Single Line Diagram Canvas -->
+            <div class="diagram-box">
+                <h3 style="margin-top:0; color:#cbd5e1; font-size:1em;">Power System Schematic Diagram</h3>
+                <canvas id="schematicCanvas" height="100"></canvas>
+            </div>
+
+            <!-- Graphs -->
+            <div class="graph-container">
+                <div class="diagram-box">
+                    <h3 style="margin-top:0; color:#cbd5e1; font-size:0.95em;">Rotor Angle (&delta;) vs Time</h3>
+                    <canvas id="angleCanvas" height="180"></canvas>
+                </div>
+                <div class="diagram-box">
+                    <h3 style="margin-top:0; color:#cbd5e1; font-size:0.95em;">Bus Voltage (V<sub>m</sub>) vs Time</h3>
+                    <canvas id="voltageCanvas" height="180"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Update slider display labels
+        document.getElementById('faultSlider').addEventListener('input', e => {
+            document.getElementById('faultVal').innerText = parseFloat(e.target.value).toFixed(2) + " s";
+        });
+        document.getElementById('pmSlider').addEventListener('input', e => {
+            document.getElementById('pmVal').innerText = parseFloat(e.target.value).toFixed(1) + " pu";
+        });
+
+        function runSimulation() {
+            // Read inputs
+            const factsOn = document.getElementById('factsSwitch').checked;
+            const faultTime = parseFloat(document.getElementById('faultSlider').value);
+            const Pm = parseFloat(document.getElementById('pmSlider').value);
+
+            // Simulation Time Variables
+            const dt = 0.002;
+            const tFaultStart = 0.4;
+            const tFaultClear = tFaultStart + faultTime;
+            const tTotal = 3.0;
+
+            // Generator Physics Parameters
+            let delta = Math.asin(Pm / 1.2); // Initial angle in radians
+            let omega = 2 * Math.PI * 50;    // 50Hz synchronous speed
+            const w0 = 2 * Math.PI * 50;
+            const H = 3.5;                   // Inertia
+            const D = 0.15;                  // Damping
+
+            // Pmax limits
+            const Pmax_normal = 1.2;
+            const Pmax_fault = 0.15;
+            // With FACTS, post-fault peak power capacity is increased
+            const Pmax_post = factsOn ? 1.30 : 0.85; 
+
+            let tArray = [], deltaArray = [], vArray = [];
+            let isStable = true;
+
+            // Simulation Loop
+            for (let t = 0; t <= tTotal; t += dt) {
+                let Pe = 0;
+                let Vm = 1.0;
+
+                if (t < tFaultStart) {
+                    // Pre-fault state
+                    Pe = Pmax_normal * Math.sin(delta);
+                    Vm = 1.0;
+                } else if (t >= tFaultStart && t < tFaultClear) {
+                    // Fault state (Severe voltage drop)
+                    Pe = Pmax_fault * Math.sin(delta);
+                    Vm = 0.25;
+                } else {
+                    // Post-fault state
+                    Pe = Pmax_post * Math.sin(delta);
+                    // FACTS restores voltage faster
+                    Vm = factsOn ? 0.98 : 0.82; 
+                }
+
+                // Simple Swing Equation Solver
+                let dOmega = (w0 / (2 * H)) * (Pm - Pe - D * (omega - w0) / w0);
+                omega += dOmega * dt;
+                delta += (omega - w0) * dt;
+
+                let deltaDeg = delta * (180 / Math.PI);
+
+                // Check stability limit (If angle goes beyond 180 deg, generator trips)
+                if (deltaDeg > 180) {
+                    isStable = false;
+                }
+
+                tArray.push(t);
+                deltaArray.push(deltaDeg);
+                vArray.push(Vm);
+            }
+
+            // Update Status Banner
+            const banner = document.getElementById('resultBanner');
+            if (isStable) {
+                banner.innerText = "SYSTEM STATE: STABLE (Synchronism Maintained)";
+                banner.className = "status-box status-stable";
+            } else {
+                banner.innerText = "SYSTEM STATE: UNSTABLE (Generator Lost Synchronism!)";
+                banner.className = "status-box status-unstable";
+            }
+
+            // Draw Visual Elements
+            drawSchematic(factsOn);
+            drawGraph('angleCanvas', tArray, deltaArray, 'Time (s)', 'Angle (°)', '#38bdf8', 0, 200, 180);
+            drawGraph('voltageCanvas', tArray, vArray, 'Time (s)', 'Voltage (pu)', '#22c55e', 0, 1.2, null);
+        }
+
+        // Draw Visual Power System Schematic
+        function drawSchematic(factsOn) {
+            const canvas = document.getElementById('schematicCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            
+            const w = canvas.width;
+            const cy = canvas.height / 2;
+
+            ctx.clearRect(0, 0, w, canvas.height);
+
+            // Transmission Line
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(80, cy);
+            ctx.lineTo(w - 80, cy);
+            ctx.stroke();
+
+            // Generator Symbol (Left)
+            ctx.fillStyle = '#0284c7';
+            ctx.beginPath();
+            ctx.arc(60, cy, 22, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText('GEN', 48, cy + 4);
+
+            // Infinite Bus Grid Symbol (Right)
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(w - 70, cy - 20, 40, 40);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('GRID', w - 65, cy + 5);
+
+            // FACTS Device at Midpoint
+            const midX = w / 2;
+            ctx.fillStyle = factsOn ? '#22c55e' : '#ef4444';
+            ctx.fillRect(midX - 35, cy + 10, 70, 26);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '10px sans-serif';
+            ctx.fillText(factsOn ? 'STATCOM: ON' : 'STATCOM: OFF', midX - 32, cy + 26);
+
+            // Connecting line to FACTS
+            ctx.strokeStyle = factsOn ? '#22c55e' : '#ef4444';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(midX, cy);
+            ctx.lineTo(midX, cy + 10);
+            ctx.stroke();
+        }
+
+        // Draw Plot
+        function drawGraph(canvasId, xData, yData, xLabel, yLabel, lineCol, yMin, yMax, limitLine) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            
+            const w = canvas.width;
+            const h = canvas.height;
+            const padLeft = 40, padBottom = 25, padTop = 15, padRight = 15;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const getX = x => padLeft + (x / 3.0) * (w - padLeft - padRight);
+            const getY = y => h - padBottom - ((y - yMin) / (yMax - yMin)) * (h - padTop - padBottom);
+
+            // Gridlines
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padLeft, getY(yMin)); ctx.lineTo(w - padRight, getY(yMin));
+            ctx.moveTo(padLeft, getY(yMax)); ctx.lineTo(w - padRight, getY(yMax));
+            ctx.stroke();
+
+            // Limit Red Line (for 180 deg stability limit)
+            if (limitLine) {
+                ctx.strokeStyle = '#ef4444';
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(padLeft, getY(limitLine));
+                ctx.lineTo(w - padRight, getY(limitLine));
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#ef4444';
+                ctx.fillText('180° Limit', w - 65, getY(limitLine) - 4);
+            }
+
+            // Data curve
+            ctx.strokeStyle = lineCol;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for(let i = 0; i < xData.length; i++) {
+                let xp = getX(xData[i]);
+                let yp = getY(yData[i]);
+                if (i === 0) ctx.moveTo(xp, yp);
+                else ctx.lineTo(xp, yp);
+            }
+            ctx.stroke();
+
+            // Text Labels
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px sans-serif';
+            ctx.fillText(yLabel, 5, 12);
+            ctx.fillText(xLabel, w / 2 - 10, h - 5);
+        }
+
+        // Run default simulation on page load
+        window.onload = runSimulation;
+    </script>
+
+</body>
+<footer style="text-align: center;">
+    <p>© Rushabh D. Vanara | Department of Electrical Engineering, Government Polytechnic, Junagadh</p>
+</footer>
+</html>

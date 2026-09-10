@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FACTS Devices Power System Stability Virtual Lab</title>
+    <style>
+        :root {
+            /* Light Theme Color Palette */
+            --primary: #1e3a8a;       /* Deep Blue */
+            --secondary: #0ea5e9;     /* Sky Blue */
+            --accent: #ea580c;        /* Vibrant Orange */
+            --bg-main: #f1f5f9;       /* Light Slate Background */
+            --bg-card: #ffffff;       /* White Card Background */
+            --bg-diagram: #f8fafc;    /* Very Light Slate for diagrams */
+            --text-dark: #0f172a;     /* Main Text */
+            --text-dim: #475569;      /* Secondary Text */
+            --border: #cbd5e1;        /* Light Borders */
+            --success: #059669;       /* Emerald Green */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header Layout */
+        header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .home-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .home-link:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .lab-title {
+            text-align: right;
+        }
+
+        .lab-title h1 {
+            font-size: 1.4rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .lab-title p {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        /* Container & Layout */
+        .container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 1.5rem;
+            padding: 2rem;
+            flex-grow: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.25rem;
+            border-bottom: 2px solid var(--bg-main);
+            padding-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Control Panel */
+        .control-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.6rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        
+        select:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+        }
+
+        /* Custom Range Slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            outline: none;
+            margin-top: 5px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+            transition: transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: var(--primary);
+        }
+
+        .range-val {
+            float: right;
+            color: var(--secondary);
+            font-weight: 700;
+            background: #e0f2fe;
+            padding: 0.1rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* Visualization Area */
+        .diagram-container {
+            width: 100%;
+            background: var(--bg-diagram);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+
+        /* MathML Styling */
+        math {
+            font-size: 1.25rem;
+            color: var(--text-dark);
+        }
+
+        .calc-box {
+            background: #f0fdf4; /* Very pale green */
+            padding: 1.25rem;
+            border-radius: 8px;
+            border-left: 5px solid var(--success);
+            margin-top: 1rem;
+            font-family: 'Consolas', 'Courier New', monospace;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            border-bottom: 1px dashed #cbd5e1;
+            padding-bottom: 0.4rem;
+        }
+        
+        .calc-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        /* Plot Canvas styling */
+        .plot-svg {
+            width: 100%;
+            height: 350px;
+            background: var(--bg-card);
+            border-radius: 8px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-top: auto;
+        }
+
+        footer strong {
+            color: var(--primary);
+        }
+
+        .info-badge {
+            background: #e0f2fe;
+            color: var(--primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .theory-text {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+        
+        .theory-text strong {
+            color: var(--text-dark);
+            display: block;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <a href="https://rushabhvanara.github.io" class="home-link" target="_blank">
+            &#8592; rushabhvanara.github.io
+        </a>
+        <div class="lab-title">
+            <h1>Power System Stability Virtual Lab</h1>
+            <p>Transient & Steady-State Enhancement via FACTS Controllers</p>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="container">
+
+        <!-- Controls Sidebar -->
+        <aside>
+            <div class="card">
+                <div class="card-title">Lab Controls</div>
+
+                <div class="control-group">
+                    <label for="caseSelect">FACTS Topology Case:</label>
+                    <select id="caseSelect" onchange="updateSimulation()">
+                        <option value="uncompensated">1. Uncompensated Line</option>
+                        <option value="tcsc">2. TCSC (Series Capacitive)</option>
+                        <option value="sssc">3. SSSC (Series Voltage Injection)</option>
+                        <option value="upfc">4. UPFC (Combined Series-Shunt)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="vsInput">Sending Voltage V<sub>s</sub> (p.u.): <span class="range-val" id="vsVal">1.00</span></label>
+                    <input type="range" id="vsInput" min="0.8" max="1.2" step="0.01" value="1.00" oninput="updateSimulation()">
+                </div>
+
+                <div class="control-group">
+                    <label for="vrInput">Receiving Voltage V<sub>r</sub> (p.u.): <span class="range-val" id="vrVal">1.00</span></label>
+                    <input type="range" id="vrInput" min="0.8" max="1.2" step="0.01" value="1.00" oninput="updateSimulation()">
+                </div>
+
+                <div class="control-group">
+                    <label for="xInput">Line Reactance X<sub>L</sub> (p.u.): <span class="range-val" id="xVal">0.50</span></label>
+                    <input type="range" id="xInput" min="0.2" max="0.8" step="0.02" value="0.50" oninput="updateSimulation()">
+                </div>
+
+                <div class="control-group">
+                    <label for="deltaInput">Rotor/Power Angle &delta; (&deg;): <span class="range-val" id="deltaVal">30</span></label>
+                    <input type="range" id="deltaInput" min="0" max="180" step="1" value="30" oninput="updateSimulation()">
+                </div>
+
+                <div class="control-group" id="compensationControl">
+                    <label for="compInput">Compensation Degree / V<sub>inj</sub>: <span class="range-val" id="compVal">30%</span></label>
+                    <input type="range" id="compInput" min="0" max="0.5" step="0.05" value="0.30" oninput="updateSimulation()">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Theory Quick-Ref</div>
+                <div class="theory-text">
+                    <strong>Uncompensated:</strong> Power transfer is limited strictly by the transmission line's physical reactance.
+                    <strong>TCSC:</strong> Modifies line parameters by reducing net series reactance (<math><msub><mi>X</mi><mrow><mi>e</mi><mi>f</mi><mi>f</mi></mrow></msub></math> decreases), shifting the P-&delta; curve upward.
+                    <strong>SSSC:</strong> Injects a controllable series voltage magnitude independent of line current, pushing active power limits higher.
+                    <strong>UPFC:</strong> Provides simultaneous independent control of active power, reactive power, and bus voltage via series and shunt converters.
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Visualization Workspace -->
+        <main>
+            <!-- Single Line Diagram Card -->
+            <div class="card">
+                <div class="card-title">
+                    <span>Publication-Grade System Diagram</span>
+                    <span class="info-badge" id="caseBadge">Uncompensated</span>
+                </div>
+                <div class="diagram-container">
+                    <svg id="sldSvg" width="700" height="200" viewBox="0 0 700 200">
+                        <!-- Content dynamically rendered via JS -->
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Mathematical Modeling & Analytics Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <!-- Math Formulation -->
+                <div class="card">
+                    <div class="card-title">Governing Equations</div>
+                    <div id="mathContainer" style="min-height: 100px; display:flex; align-items:center; justify-content:center; padding: 1rem 0;">
+                        <!-- Dynamic MathML -->
+                    </div>
+                    <div class="calc-box" id="calcOutputs">
+                        <!-- Dynamic Numeric Output -->
+                    </div>
+                </div>
+
+                <!-- Live Power-Angle (P-delta) Curves -->
+                <div class="card">
+                    <div class="card-title">Power-Angle Characteristic (P - &delta;)</div>
+                    <svg class="plot-svg" id="plotSvg" viewBox="0 0 500 350">
+                        <!-- Axes and plots dynamically built -->
+                    </svg>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        Made with ❤️ by <strong>Rushabh Vanara</strong><br>
+        Electrical Engineering Department, Government Polytechnic Junagadh
+    </footer>
+
+    <!-- Simulation Engine Script -->
+    <script>
+        function updateSimulation() {
+            // Get inputs
+            const caseType = document.getElementById('caseSelect').value;
+            const Vs = parseFloat(document.getElementById('vsInput').value);
+            const Vr = parseFloat(document.getElementById('vrInput').value);
+            const X = parseFloat(document.getElementById('xInput').value);
+            const deltaDeg = parseFloat(document.getElementById('deltaInput').value);
+            const comp = parseFloat(document.getElementById('compInput').value);
+
+            // Update UI Labels
+            document.getElementById('vsVal').innerText = Vs.toFixed(2);
+            document.getElementById('vrVal').innerText = Vr.toFixed(2);
+            document.getElementById('xVal').innerText = X.toFixed(2);
+            document.getElementById('deltaVal').innerText = deltaDeg + "°";
+            
+            const compLabel = caseType === 'sssc' ? `${(comp).toFixed(2)} p.u.` : `${(comp * 100).toFixed(0)}%`;
+            document.getElementById('compVal').innerText = compLabel;
+
+            // Update Compensation Controls Availability
+            const compControl = document.getElementById('compensationControl');
+            if (caseType === 'uncompensated') {
+                compControl.style.opacity = '0.4';
+                compControl.style.pointerEvents = 'none';
+            } else {
+                compControl.style.opacity = '1';
+                compControl.style.pointerEvents = 'auto';
+            }
+
+            // Calculations
+            const deltaRad = deltaDeg * (Math.PI / 180);
+            let P = 0, Pmax = 0, P_ref = 0;
+            let Xeff = X;
+
+            // Uncompensated Base Pmax
+            const Pmax_base = (Vs * Vr) / X;
+
+            if (caseType === 'uncompensated') {
+                document.getElementById('caseBadge').innerText = 'Uncompensated';
+                Pmax = Pmax_base;
+                P = Pmax * Math.sin(deltaRad);
+            } 
+            else if (caseType === 'tcsc') {
+                document.getElementById('caseBadge').innerText = 'TCSC Mode';
+                Xeff = X * (1 - comp); // comp is % k_c
+                Pmax = (Vs * Vr) / Xeff;
+                P = Pmax * Math.sin(deltaRad);
+            } 
+            else if (caseType === 'sssc') {
+                document.getElementById('caseBadge').innerText = 'SSSC Mode';
+                // V_inj added in series
+                const Vinj = comp; 
+                Pmax = Pmax_base + (Vs * Vinj) / X;
+                P = (Vs * Vr / X) * Math.sin(deltaRad) + (Vs * Vinj / X) * Math.cos(deltaRad / 2);
+            } 
+            else if (caseType === 'upfc') {
+                document.getElementById('caseBadge').innerText = 'UPFC Mode';
+                // Boost factor capability
+                const Vboost = comp;
+                Pmax = Pmax_base * (1 + Vboost);
+                P = Pmax * Math.sin(deltaRad);
+            }
+
+            // Draw Single Line Diagram
+            drawSLD(caseType);
+
+            // Render MathML & Numerical Output
+            renderMathAndCalculations(caseType, Vs, Vr, X, Xeff, deltaDeg, P, Pmax, comp);
+
+            // Draw P-Delta Curves
+            drawPlots(deltaDeg, P, Pmax, Pmax_base, caseType);
+        }
+
+        function drawSLD(type) {
+            const svg = document.getElementById('sldSvg');
+            
+            // Light Theme SVG Colors
+            const colorBus = "#1e293b";      // Dark Slate for main structures
+            const colorLine = "#64748b";     // Medium Slate for transmission lines
+            const colorPrimary = "#0ea5e9";  // Sky Blue for standard components
+            const colorFACTS = "#ea580c";    // Orange for FACTS
+            const colorText = "#475569";     // Text Color
+            
+            let content = `
+                <!-- Busbars -->
+                <line x1="80" y1="50" x2="80" y2="150" stroke="${colorBus}" stroke-width="5" stroke-linecap="round"/>
+                <text x="65" y="40" fill="${colorText}" font-size="13" font-weight="600">Bus S (Vs)</text>
+
+                <line x1="620" y1="50" x2="620" y2="150" stroke="${colorBus}" stroke-width="5" stroke-linecap="round"/>
+                <text x="605" y="40" fill="${colorText}" font-size="13" font-weight="600">Bus R (Vr)</text>
+
+                <!-- Generator -->
+                <circle cx="40" cy="100" r="20" fill="#ffffff" stroke="${colorPrimary}" stroke-width="2.5"/>
+                <path d="M 30 100 Q 35 90, 40 100 T 50 100" fill="none" stroke="${colorPrimary}" stroke-width="2"/>
+                <line x1="60" y1="100" x2="80" y2="100" stroke="${colorBus}" stroke-width="2.5"/>
+
+                <!-- Transmission Line Lines -->
+                <line x1="80" y1="100" x2="300" y2="100" stroke="${colorLine}" stroke-width="2.5"/>
+                <line x1="400" y1="100" x2="620" y2="100" stroke="${colorLine}" stroke-width="2.5"/>
+
+                <!-- Load -->
+                <line x1="620" y1="100" x2="650" y2="100" stroke="${colorBus}" stroke-width="2.5"/>
+                <polygon points="650,90 670,100 650,110" fill="${colorPrimary}"/>
+            `;
+
+            // Draw specific FACTS Devices
+            if (type === 'uncompensated') {
+                content += `
+                    <!-- Transmission Line Inductance Symbol -->
+                    <rect x="300" y="85" width="100" height="30" fill="#ffffff" stroke="${colorPrimary}" stroke-width="2"/>
+                    <path d="M 300 100 Q 312 85, 325 100 T 350 100 T 375 100 T 400 100" fill="none" stroke="${colorPrimary}" stroke-width="2"/>
+                    <text x="338" y="75" fill="${colorPrimary}" font-size="14" font-weight="bold">jX_L</text>
+                `;
+            } else if (type === 'tcsc') {
+                content += `
+                    <!-- TCSC Component -->
+                    <rect x="290" y="65" width="120" height="70" fill="#fff7ed" stroke="${colorFACTS}" stroke-width="2" rx="4"/>
+                    
+                    <!-- Capacitor -->
+                    <line x1="345" y1="85" x2="345" y2="115" stroke="${colorPrimary}" stroke-width="3"/>
+                    <line x1="355" y1="85" x2="355" y2="115" stroke="${colorPrimary}" stroke-width="3"/>
+                    <line x1="300" y1="100" x2="345" y2="100" stroke="${colorLine}" stroke-width="2.5"/>
+                    <line x1="355" y1="100" x2="400" y2="100" stroke="${colorLine}" stroke-width="2.5"/>
+                    
+                    <!-- Thyristor branch (simplified above) -->
+                    <line x1="320" y1="100" x2="320" y2="75" stroke="${colorLine}" stroke-width="2"/>
+                    <line x1="320" y1="75" x2="380" y2="75" stroke="${colorLine}" stroke-width="2"/>
+                    <line x1="380" y1="75" x2="380" y2="100" stroke="${colorLine}" stroke-width="2"/>
+                    
+                    <!-- Thyristor symbol -->
+                    <path d="M 342 75 L 358 65 L 358 85 Z" fill="${colorFACTS}"/>
+                    <line x1="342" y1="65" x2="342" y2="85" stroke="${colorFACTS}" stroke-width="2"/>
+
+                    <text x="325" y="150" fill="${colorFACTS}" font-size="13" font-weight="bold">TCSC Device</text>
+                `;
+            } else if (type === 'sssc') {
+                content += `
+                    <!-- SSSC Series Injection Transformer & VSC -->
+                    <circle cx="335" cy="100" r="15" fill="#ffffff" stroke="${colorFACTS}" stroke-width="2"/>
+                    <circle cx="365" cy="100" r="15" fill="#ffffff" stroke="${colorFACTS}" stroke-width="2"/>
+                    
+                    <rect x="325" y="135" width="50" height="40" fill="#fff7ed" stroke="${colorFACTS}" stroke-width="2" rx="3"/>
+                    <line x1="350" y1="115" x2="350" y2="135" stroke="${colorFACTS}" stroke-width="2"/>
+                    
+                    <text x="333" y="160" fill="${colorFACTS}" font-size="12" font-weight="600">VSC</text>
+                    <text x="315" y="70" fill="${colorFACTS}" font-size="13" font-weight="bold">SSSC (V_inj)</text>
+                `;
+            } else if (type === 'upfc') {
+                content += `
+                    <!-- UPFC Combined Shunt and Series -->
+                    
+                    <!-- Series Transformer -->
+                    <circle cx="430" cy="100" r="14" fill="#ffffff" stroke="${colorFACTS}" stroke-width="2"/>
+                    <circle cx="454" cy="100" r="14" fill="#ffffff" stroke="${colorFACTS}" stroke-width="2"/>
+                    <line x1="442" y1="114" x2="442" y2="140" stroke="${colorFACTS}" stroke-width="2"/>
+                    
+                    <!-- Shunt Transformer -->
+                    <line x1="220" y1="100" x2="220" y2="125" stroke="${colorFACTS}" stroke-width="2"/>
+                    <circle cx="220" cy="135" r="12" fill="#ffffff" stroke="${colorFACTS}" stroke-width="2"/>
+                    <circle cx="220" cy="155" r="12" fill="#ffffff" stroke="${colorFACTS}" stroke-width="2"/>
+                    
+                    <!-- Converters & DC Link -->
+                    <rect x="195" y="167" width="50" height="35" fill="#fff7ed" stroke="${colorFACTS}" stroke-width="2" rx="3"/>
+                    <text x="201" y="189" fill="${colorFACTS}" font-size="11" font-weight="600">STAT</text>
+
+                    <rect x="417" y="140" width="50" height="35" fill="#fff7ed" stroke="${colorFACTS}" stroke-width="2" rx="3"/>
+                    <text x="424" y="162" fill="${colorFACTS}" font-size="11" font-weight="600">SSSC</text>
+
+                    <!-- DC Bus -->
+                    <line x1="245" y1="184" x2="442" y2="184" stroke="${colorBus}" stroke-width="3"/>
+                    <line x1="442" y1="184" x2="442" y2="175" stroke="${colorBus}" stroke-width="3"/>
+                    
+                    <!-- DC Cap -->
+                    <line x1="335" y1="184" x2="335" y2="200" stroke="${colorBus}" stroke-width="2"/>
+                    <line x1="325" y1="200" x2="345" y2="200" stroke="${colorBus}" stroke-width="3"/>
+                    <line x1="325" y1="205" x2="345" y2="205" stroke="${colorBus}" stroke-width="3"/>
+                    
+                    <text x="315" y="175" fill="${colorBus}" font-size="11" font-weight="bold">DC Link</text>
+                    <text x="315" y="70" fill="${colorFACTS}" font-size="13" font-weight="bold">UPFC System</text>
+                `;
+            }
+
+            svg.innerHTML = content;
+        }
+
+        function renderMathAndCalculations(type, Vs, Vr, X, Xeff, delta, P, Pmax, comp) {
+            const mathBox = document.getElementById('mathContainer');
+            const calcBox = document.getElementById('calcOutputs');
+
+            let mathHtml = '';
+            
+            if (type === 'uncompensated') {
+                mathHtml = `
+                    <math display="block">
+                        <mi>P</mi>
+                        <mo>=</mo>
+                        <mfrac>
+                            <mrow><msub><mi>V</mi><mi>s</mi></msub><mo>&sdot;</mo><msub><mi>V</mi><mi>r</mi></msub></mrow>
+                            <msub><mi>X</mi><mi>L</mi></msub>
+                        </mfrac>
+                        <mo>sin</mo>
+                        <mo>(</mo><mi>&delta;</mi><mo>)</mo>
+                    </math>
+                `;
+            } else if (type === 'tcsc') {
+                mathHtml = `
+                    <math display="block">
+                        <mi>P</mi>
+                        <mo>=</mo>
+                        <mfrac>
+                            <mrow><msub><mi>V</mi><mi>s</mi></msub><mo>&sdot;</mo><msub><mi>V</mi><mi>r</mi></msub></mrow>
+                            <mrow><msub><mi>X</mi><mi>L</mi></msub><mo>(</mo><mn>1</mn><mo>-</mo><msub><mi>k</mi><mi>c</mi></msub><mo>)</mo></mrow>
+                        </mfrac>
+                        <mo>sin</mo>
+                        <mo>(</mo><mi>&delta;</mi><mo>)</mo>
+                    </math>
+                `;
+            } else if (type === 'sssc') {
+                mathHtml = `
+                    <math display="block">
+                        <mi>P</mi>
+                        <mo>=</mo>
+                        <mfrac>
+                            <mrow><msub><mi>V</mi><mi>s</mi></msub><msub><mi>V</mi><mi>r</mi></msub></mrow>
+                            <msub><mi>X</mi><mi>L</mi></msub>
+                        </mfrac>
+                        <mo>sin</mo><mo>(</mo><mi>&delta;</mi><mo>)</mo>
+                        <mo>+</mo>
+                        <mfrac>
+                            <mrow><msub><mi>V</mi><mi>s</mi></msub><msub><mi>V</mi><mrow><mi>i</mi><mi>n</mi><mi>j</mi></mrow></msub></mrow>
+                            <msub><mi>X</mi><mi>L</mi></msub>
+                        </mfrac>
+                        <mo>cos</mo><mfenced><mfrac><mi>&delta;</mi><mn>2</mn></mfrac></mfenced>
+                    </math>
+                `;
+            } else if (type === 'upfc') {
+                mathHtml = `
+                    <math display="block">
+                        <mi>P</mi>
+                        <mo>=</mo>
+                        <msub><mi>P</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi><mo>,</mo><mi>u</mi><mi>p</mi><mi>f</mi><mi>c</mi></mrow></msub>
+                        <mo>&sdot;</mo>
+                        <mo>sin</mo><mo>(</mo><mi>&delta;</mi><mo>-</mo><mi>&rho;</mi><mo>)</mo>
+                    </math>
+                `;
+            }
+
+            mathBox.innerHTML = mathHtml;
+
+            // Update numerical readout
+            let margin = (((Pmax - (Vs*Vr/X))/(Vs*Vr/X))*100);
+            let marginStr = margin >= 0 ? `+${margin.toFixed(1)}%` : `${margin.toFixed(1)}%`;
+            
+            calcBox.innerHTML = `
+                <div class="calc-row"><span>Active Power (P):</span> <strong style="color:var(--success); font-size:1.05rem;">${P.toFixed(3)} p.u.</strong></div>
+                <div class="calc-row"><span>Peak Limit (P<sub>max</sub>):</span> <strong>${Pmax.toFixed(3)} p.u.</strong></div>
+                <div class="calc-row"><span>Effective X<sub>eff</sub>:</span> <strong>${Xeff.toFixed(3)} p.u.</strong></div>
+                <div class="calc-row"><span>Capacity Margin:</span> <strong style="color:var(--primary)">${marginStr}</strong></div>
+            `;
+        }
+
+        function drawPlots(currentDelta, currentP, Pmax, Pmax_base, caseType) {
+            const svg = document.getElementById('plotSvg');
+            
+            // Margins & Dimensions
+            const w = 500, h = 350;
+            const padL = 55, padB = 45, padR = 25, padT = 25;
+            const pw = w - padL - padR;
+            const ph = h - padT - padB;
+
+            const maxPScale = 3.0; // max Y axis scale in p.u.
+
+            // Helper map functions
+            const mapX = (deg) => padL + (deg / 180) * pw;
+            const mapY = (pVal) => padT + ph - (pVal / maxPScale) * ph;
+
+            // Generate Path Data for Base Curve
+            let dBase = "";
+            let dComp = "";
+
+            for (let deg = 0; deg <= 180; deg += 2) {
+                const rad = deg * (Math.PI / 180);
+                const pBase = Pmax_base * Math.sin(rad);
+                
+                // Base Path
+                dBase += (deg === 0 ? "M " : " L ") + mapX(deg) + " " + mapY(pBase);
+
+                // Compensated Path
+                let pComp = 0;
+                if (caseType === 'uncompensated') {
+                    pComp = pBase;
+                } else if (caseType === 'tcsc' || caseType === 'upfc') {
+                    pComp = Pmax * Math.sin(rad);
+                } else if (caseType === 'sssc') {
+                    const comp = parseFloat(document.getElementById('compInput').value);
+                    const Vs = parseFloat(document.getElementById('vsInput').value);
+                    const Vr = parseFloat(document.getElementById('vrInput').value);
+                    const X = parseFloat(document.getElementById('xInput').value);
+                    pComp = (Vs * Vr / X) * Math.sin(rad) + (Vs * comp / X) * Math.cos(rad / 2);
+                }
+
+                dComp += (deg === 0 ? "M " : " L ") + mapX(deg) + " " + mapY(pComp);
+            }
+
+            // Current Operating Point
+            const opX = mapX(currentDelta);
+            const opY = mapY(currentP);
+
+            let content = `
+                <!-- Grid Background -->
+                <rect x="${padL}" y="${padT}" width="${pw}" height="${ph}" fill="#f8fafc" />
+                
+                <!-- Main Axes -->
+                <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h-padB}" stroke="#1e293b" stroke-width="2"/>
+                <line x1="${padL}" y1="${h-padB}" x2="${w-padR}" y2="${h-padB}" stroke="#1e293b" stroke-width="2"/>
+                
+                <!-- Horizontal Grid Ticks -->
+                <line x1="${padL}" y1="${mapY(1.0)}" x2="${w-padR}" y2="${mapY(1.0)}" stroke="#e2e8f0" stroke-dasharray="4"/>
+                <text x="${padL-40}" y="${mapY(1.0)+4}" fill="#64748b" font-size="11">1.0 pu</text>
+
+                <line x1="${padL}" y1="${mapY(2.0)}" x2="${w-padR}" y2="${mapY(2.0)}" stroke="#e2e8f0" stroke-dasharray="4"/>
+                <text x="${padL-40}" y="${mapY(2.0)+4}" fill="#64748b" font-size="11">2.0 pu</text>
+                
+                <!-- Axis Labels -->
+                <text x="${w/2}" y="${h-10}" fill="#0f172a" font-size="12" font-weight="600" text-anchor="middle">Power Angle &delta; (degrees)</text>
+                <text x="${15}" y="${h/2}" fill="#0f172a" font-size="12" font-weight="600" text-anchor="middle" transform="rotate(-90 15 ${h/2})">Active Power P (p.u.)</text>
+
+                <!-- Delta Ticks -->
+                <text x="${mapX(0)-5}" y="${h-padB+18}" fill="#64748b" font-size="11">0°</text>
+                <text x="${mapX(90)-10}" y="${h-padB+18}" fill="#64748b" font-size="11">90°</text>
+                <text x="${mapX(180)-15}" y="${h-padB+18}" fill="#64748b" font-size="11">180°</text>
+
+                <!-- Base Curve -->
+                <path d="${dBase}" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6,4"/>
+
+                <!-- Compensated Curve -->
+                <path d="${dComp}" fill="none" stroke="#0ea5e9" stroke-width="3"/>
+
+                <!-- Operating Point Marker -->
+                <circle cx="${opX}" cy="${opY}" r="6" fill="#ea580c" stroke="#ffffff" stroke-width="2"/>
+                <line x1="${opX}" y1="${h-padB}" x2="${opX}" y2="${opY}" stroke="#ea580c" stroke-dasharray="4" stroke-width="1.5"/>
+                <line x1="${padL}" y1="${opY}" x2="${opX}" y2="${opY}" stroke="#ea580c" stroke-dasharray="4" stroke-width="1.5"/>
+
+                <!-- Legend -->
+                <rect x="${w-165}" y="${padT+10}" width="130" height="55" fill="#ffffff" rx="4" stroke="#cbd5e1" shadow="0 1px 2px rgba(0,0,0,0.1)"/>
+                <line x1="${w-155}" y1="${padT+25}" x2="${w-135}" y2="${padT+25}" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6,4"/>
+                <text x="${w-130}" y="${padT+29}" fill="#475569" font-size="11">Uncompensated</text>
+                <line x1="${w-155}" y1="${padT+45}" x2="${w-135}" y2="${padT+45}" stroke="#0ea5e9" stroke-width="3"/>
+                <text x="${w-130}" y="${padT+49}" fill="#0ea5e9" font-size="11" font-weight="600">${caseType.toUpperCase()}</text>
+            `;
+
+            svg.innerHTML = content;
+        }
+
+        // Initialize Virtual Lab Engine
+        window.onload = () => {
+            updateSimulation();
+        };
+    </script>
+</body>
+</html>

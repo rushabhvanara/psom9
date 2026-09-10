@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FACTS Devices Virtual Lab — Power System Stability</title>
+
+<style>
+:root{
+  --navy:#102a43;
+  --blue:#1976d2;
+  --cyan:#00a6c8;
+  --green:#16a085;
+  --orange:#f39c12;
+  --red:#e74c3c;
+  --purple:#7e57c2;
+  --bg:#f4f7fb;
+  --card:#ffffff;
+  --muted:#627d98;
+  --border:#d9e2ec;
+  --shadow:0 5px 20px rgba(16,42,67,.08);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:var(--bg);
+  color:#243b53;
+}
+
+header{
+  background:linear-gradient(135deg,#0b1f33,#123b5d 55%,#1976d2);
+  color:white;
+  padding:22px 28px 26px;
+  position:relative;
+  box-shadow:0 4px 16px rgba(0,0,0,.15);
+}
+
+.home{
+  position:absolute;
+  top:16px;
+  left:20px;
+  color:white;
+  text-decoration:none;
+  border:1px solid rgba(255,255,255,.4);
+  padding:7px 13px;
+  border-radius:18px;
+  font-size:13px;
+  background:rgba(255,255,255,.08);
+}
+
+.home:hover{background:rgba(255,255,255,.18)}
+
+.header-content{
+  max-width:1400px;
+  margin:auto;
+  padding-top:20px;
+}
+
+h1{
+  margin:5px 0;
+  font-size:30px;
+  letter-spacing:.2px;
+}
+
+.subtitle{
+  opacity:.88;
+  font-size:15px;
+}
+
+.badge{
+  display:inline-block;
+  background:#00a6c8;
+  color:white;
+  border-radius:15px;
+  padding:5px 12px;
+  font-size:12px;
+  font-weight:700;
+  margin-top:10px;
+}
+
+.container{
+  max-width:1400px;
+  margin:22px auto;
+  padding:0 18px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  margin-bottom:18px;
+  overflow:hidden;
+}
+
+.card-header{
+  padding:13px 18px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(90deg,#f8fbfe,#fff);
+  font-weight:700;
+  color:var(--navy);
+}
+
+.card-body{padding:18px}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+
+.tab{
+  border:1px solid var(--border);
+  background:white;
+  color:var(--navy);
+  border-radius:8px;
+  padding:10px 16px;
+  cursor:pointer;
+  font-weight:650;
+}
+
+.tab.active{
+  background:var(--blue);
+  color:white;
+  border-color:var(--blue);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+
+.grid3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+}
+
+@media(max-width:950px){
+  .grid,.grid3{grid-template-columns:1fr}
+}
+
+.diagram{
+  width:100%;
+  min-height:340px;
+  background:
+    linear-gradient(180deg,#ffffff,#f9fbfd);
+}
+
+svg{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+.metric{
+  background:#f7fafc;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:13px;
+}
+
+.metric-title{
+  color:var(--muted);
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+}
+
+.metric-value{
+  font-size:24px;
+  font-weight:750;
+  margin-top:4px;
+  color:var(--navy);
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+
+.control{
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:#fbfdff;
+}
+
+.control label{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  font-weight:650;
+  margin-bottom:8px;
+}
+
+input[type=range]{
+  width:100%;
+  accent-color:var(--blue);
+}
+
+select,button{
+  font:inherit;
+}
+
+.action{
+  border:0;
+  border-radius:8px;
+  padding:10px 15px;
+  background:var(--blue);
+  color:white;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.action.secondary{
+  background:#e8f1fa;
+  color:var(--navy);
+}
+
+.action.danger{
+  background:var(--red);
+}
+
+.buttons{
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+canvas{
+  width:100%;
+  height:350px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:white;
+}
+
+.chart-title{
+  margin:0 0 8px;
+  font-size:14px;
+  color:var(--navy);
+}
+
+.explanation{
+  line-height:1.65;
+  color:#486581;
+  font-size:14px;
+}
+
+.equation{
+  padding:15px;
+  margin:10px 0;
+  border-left:4px solid var(--blue);
+  background:#f5f9fd;
+  overflow-x:auto;
+  text-align:center;
+}
+
+.case-description{
+  background:#f7fafc;
+  border-radius:9px;
+  padding:14px;
+  margin-top:12px;
+  font-size:14px;
+  line-height:1.55;
+}
+
+.stability-bar{
+  height:15px;
+  border-radius:10px;
+  background:#e9eef3;
+  overflow:hidden;
+  margin-top:9px;
+}
+
+.stability-fill{
+  height:100%;
+  width:0;
+  transition:.3s;
+}
+
+.good{background:#16a085}
+.medium{background:#f39c12}
+.bad{background:#e74c3c}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid var(--border);
+  text-align:center;
+}
+
+th{
+  background:#f1f5f9;
+  color:var(--navy);
+}
+
+.highlight{
+  background:#e9f7f3;
+  font-weight:700;
+}
+
+.note{
+  padding:12px 14px;
+  border-radius:8px;
+  background:#fff8e7;
+  border-left:4px solid var(--orange);
+  font-size:13px;
+  color:#6b4f00;
+}
+
+footer{
+  margin-top:30px;
+  background:#102a43;
+  color:#d9e2ec;
+  text-align:center;
+  padding:22px;
+  font-size:13px;
+}
+
+footer strong{color:white}
+
+.legend{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  font-size:12px;
+  margin-top:8px;
+}
+
+.legend span{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.dot{
+  width:12px;
+  height:3px;
+  display:inline-block;
+}
+
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  border-radius:18px;
+  padding:6px 12px;
+  font-size:12px;
+  font-weight:700;
+}
+
+.status.stable{
+  color:#087f5b;
+  background:#e3f7ef;
+}
+
+.status.critical{
+  color:#a33a2b;
+  background:#fde9e6;
+}
+
+.status.warning{
+  color:#8a5b00;
+  background:#fff4d6;
+}
+
+.small{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.tooltip{
+  font-size:11px;
+  fill:#334e68;
+}
+
+footer a{
+  color:#90caf9;
+  text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a class="home" href="https://rushabhvanara.github.io" target="_blank">⌂ Home</a>
+
+  <div class="header-content">
+    <div class="badge">ELECTRICAL ENGINEERING • VIRTUAL LAB</div>
+    <h1>Power System Stability Improvement Using FACTS Devices</h1>
+    <div class="subtitle">
+      Simulation-based study of an uncompensated transmission system, TCSC, SSSC and UPFC
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+<div class="card">
+  <div class="card-header">1. Learning Objective</div>
+  <div class="card-body explanation">
+    This virtual laboratory demonstrates how Flexible AC Transmission System (FACTS)
+    controllers improve transient stability and power-transfer capability of a
+    transmission system. A three-phase disturbance is simulated and the resulting
+    rotor-angle response, electrical power transfer and stability margin are compared
+    for four configurations.
+    
+    <div class="note" style="margin-top:14px">
+      <strong>Student task:</strong>
+      Run the disturbance for each case and observe the change in maximum rotor angle,
+      settling time, power transfer and stability margin.
+    </div>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-case="uncompensated">Uncompensated</button>
+  <button class="tab" data-case="tcsc">TCSC</button>
+  <button class="tab" data-case="sssc">SSSC</button>
+  <button class="tab" data-case="upfc">UPFC</button>
+</div>
+
+<div class="grid">
+
+<div class="card">
+  <div class="card-header">2. Transmission System & FACTS Configuration</div>
+  <div class="card-body">
+
+    <div class="diagram">
+      <svg viewBox="0 0 900 400" role="img" aria-label="Power system single line diagram">
+
+        <defs>
+          <linearGradient id="bus" x1="0" x2="1">
+            <stop offset="0" stop-color="#102a43"/>
+            <stop offset="1" stop-color="#1976d2"/>
+          </linearGradient>
+
+          <filter id="shadow">
+            <feDropShadow dx="0" dy="3" stdDeviation="3"
+                          flood-color="#102a43" flood-opacity=".15"/>
+          </filter>
+
+          <marker id="arrow" markerWidth="8" markerHeight="8"
+                  refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#1976d2"/>
+          </marker>
+        </defs>
+
+        <!-- title -->
+        <text x="450" y="27" text-anchor="middle"
+              font-size="16" font-weight="700" fill="#102a43">
+          Two-machine equivalent transmission system
+        </text>
+
+        <!-- generator -->
+        <circle cx="105" cy="190" r="55" fill="#edf5fc"
+                stroke="#1976d2" stroke-width="3" filter="url(#shadow)"/>
+        <text x="105" y="185" text-anchor="middle"
+              font-size="15" font-weight="700" fill="#102a43">G</text>
+        <text x="105" y="205" text-anchor="middle"
+              font-size="12" fill="#486581">Generator</text>
+
+        <!-- generator emf -->
+        <line x1="160" y1="190" x2="225" y2="190"
+              stroke="#102a43" stroke-width="5"/>
+
+        <!-- bus 1 -->
+        <rect x="225" y="145" width="16" height="90"
+              rx="3" fill="url(#bus)"/>
+        <text x="233" y="255" text-anchor="middle"
+              font-size="12">Bus 1</text>
+
+        <!-- transmission line -->
+        <line x1="241" y1="190" x2="650" y2="190"
+              stroke="#243b53" stroke-width="6"/>
+
+        <!-- line impedance label -->
+        <rect x="385" y="151" width="120" height="29"
+              rx="7" fill="white" stroke="#d9e2ec"/>
+        <text x="445" y="170" text-anchor="middle"
+              font-size="12" fill="#334e68">X<tspan baseline-shift="sub">line</tspan></text>
+
+        <!-- FACTS block -->
+        <g id="factsGraphic">
+          <rect x="420" y="205" width="190" height="100"
+                rx="12" fill="#f1f8ff"
+                stroke="#1976d2" stroke-width="2.5"
+                filter="url(#shadow)"/>
+
+          <text x="515" y="229" text-anchor="middle"
+                font-size="14" font-weight="700"
+                fill="#102a43" id="factsTitle">FACTS</text>
+
+          <text x="515" y="251" text-anchor="middle"
+                font-size="12" fill="#486581" id="factsSubtitle">
+            No series/shunt compensation
+          </text>
+
+          <line x1="445" y1="267" x2="585" y2="267"
+                stroke="#90caf9" stroke-width="2"/>
+
+          <text x="515" y="291" text-anchor="middle"
+                font-size="12" fill="#1976d2" id="factsValue">
+            X<tspan baseline-shift="sub">eq</tspan> = X
+          </text>
+        </g>
+
+        <!-- receiving bus -->
+        <rect x="650" y="145" width="16" height="90"
+              rx="3" fill="url(#bus)"/>
+        <text x="658" y="255" text-anchor="middle"
+              font-size="12">Bus 2</text>
+
+        <!-- load -->
+        <rect x="710" y="150" width="100" height="80"
+              rx="10" fill="#fff7e6"
+              stroke="#f39c12" stroke-width="2.5"/>
+        <text x="760" y="183" text-anchor="middle"
+              font-size="15" font-weight="700"
+              fill="#7a5100">Load</text>
+        <text x="760" y="205" text-anchor="middle"
+              font-size="12" fill="#8a6d1d">
+          P<tspan baseline-shift="sub">L</tspan> + jQ<tspan baseline-shift="sub">L</tspan>
+        </text>
+
+        <!-- power arrow -->
+        <line x1="275" y1="125" x2="610" y2="125"
+              stroke="#1976d2" stroke-width="2.5"
+              marker-end="url(#arrow)"/>
+        <text x="440" y="113" text-anchor="middle"
+              font-size="13" font-weight="700"
+              fill="#1976d2">
+          P<tspan baseline-shift="sub">e</tspan>
+        </text>
+
+        <!-- disturbance -->
+        <g id="fault">
+          <line x1="515" y1="190" x2="515" y2="340"
+                stroke="#e74c3c" stroke-width="3"
+                stroke-dasharray="7 6"/>
+          <circle cx="515" cy="340" r="14"
+                  fill="#fde9e6" stroke="#e74c3c" stroke-width="2"/>
+          <text x="515" y="345" text-anchor="middle"
+                font-size="14" font-weight="700"
+                fill="#e74c3c">F</text>
+          <text x="545" y="345" font-size="11"
+                fill="#e74c3c">3-phase fault</text>
+        </g>
+
+        <!-- voltages -->
+        <text x="190" y="105" font-size="11" fill="#627d98">
+          E′∠δ
+        </text>
+
+        <text x="675" y="105" font-size="11" fill="#627d98">
+          V∠0°
+        </text>
+
+      </svg>
+    </div>
+
+    <div class="legend">
+      <span><i class="dot" style="background:#1976d2"></i> Electrical power path</span>
+      <span><i class="dot" style="background:#e74c3c"></i> Fault/disturbance</span>
+      <span><i class="dot" style="background:#f39c12"></i> Load</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">3. Simulation Parameters</div>
+  <div class="card-body">
+
+    <div class="controls">
+
+      <div class="control">
+        <label>
+          <span>Mechanical input P<sub>m</sub></span>
+          <span id="pmVal">0.80 pu</span>
+        </label>
+        <input id="pm" type="range" min="0.40" max="1.20"
+               value="0.80" step="0.01">
+      </div>
+
+      <div class="control">
+        <label>
+          <span>Inertia constant H</span>
+          <span id="hVal">5.0 s</span>
+        </label>
+        <input id="H" type="range" min="2" max="10"
+               value="5" step=".1">
+      </div>
+
+      <div class="control">
+        <label>
+          <span>Initial rotor angle δ₀</span>
+          <span id="deltaVal">30°</span>
+        </label>
+        <input id="delta" type="range" min="10" max="55"
+               value="30" step="1">
+      </div>
+
+      <div class="control">
+        <label>
+          <span>Fault clearing time</span>
+          <span id="faultVal">0.120 s</span>
+        </label>
+        <input id="faultTime" type="range" min=".04" max=".35"
+               value=".12" step=".005">
+      </div>
+
+      <div class="control">
+        <label>
+          <span>Line reactance X</span>
+          <span id="xVal">0.80 pu</span>
+        </label>
+        <input id="xline" type="range" min=".40" max="1.40"
+               value=".80" step=".01">
+      </div>
+
+      <div class="control">
+        <label>
+          <span>Voltage V</span>
+          <span id="vVal">1.00 pu</span>
+        </label>
+        <input id="volt" type="range" min=".80" max="1.10"
+               value="1" step=".01">
+      </div>
+
+    </div>
+
+    <div class="buttons">
+      <button class="action" onclick="runSimulation()">▶ Run Simulation</button>
+      <button class="action secondary" onclick="resetSimulation()">↺ Reset</button>
+      <button class="action danger" onclick="applySevereFault()">⚡ Severe Fault</button>
+    </div>
+
+    <p class="small">
+      Simulation uses a classical two-machine equivalent and a numerical swing-equation
+      integration. Values are normalized in per-unit where appropriate.
+    </p>
+
+  </div>
+</div>
+
+</div>
+
+<div class="card">
+  <div class="card-header">4. Mathematical Model</div>
+  <div class="card-body">
+
+    <div class="equation">
+      <math display="block">
+        <mrow>
+          <msub><mi>P</mi><mi>e</mi></msub>
+          <mo>=</mo>
+          <mfrac>
+            <msub><mi>E</mi><mo>′</mo></msub>
+            <msub><mi>X</mi><mi>eq</mi></msub>
+          </mfrac>
+          <mi>V</mi>
+          <mi>sin</mi>
+          <mo>(</mo><mi>δ</mi><mo>)</mo>
+        </mrow>
+      </math>
+    </div>
+
+    <div class="equation">
+      <math display="block">
+        <mrow>
+          <mfrac>
+            <msup><mi>d</mi><mn>2</mn></msup>
+            <msup><mi>d</mi><mi>t</mi><mn>2</mn></msup>
+          </mfrac>
+          <mi>δ</mi>
+          <mo>=</mo>
+          <mfrac>
+            <msub><mi>ω</mi><mi>s</mi></msub>
+            <mrow><mn>2</mn><mi>H</mi></mrow>
+          </mfrac>
+          <mo>(</mo>
+          <msub><mi>P</mi><mi>m</mi></msub>
+          <mo>−</mo>
+          <msub><mi>P</mi><mi>e</mi></msub>
+          <mo>)</mo>
+        </mrow>
+      </math>
+    </div>
+
+    <div class="equation">
+      <math display="block">
+        <mrow>
+          <msub><mi>δ</mi><mi>cr</mi></msub>
+          <mo>≈</mo>
+          <msup>
+            <mi>cos</mi>
+            <mo>−1</mo>
+          </msup>
+          <mo>(</mo>
+          <mfrac>
+            <msub><mi>P</mi><mi>m</mi></msub>
+            <msub><mi>P</mi><mi>max</mi></msub>
+          </mfrac>
+          <mo>)</mo>
+        </mrow>
+      </math>
+    </div>
+
+    <div id="calculation" class="case-description"></div>
+
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    5. Power-Angle Characteristic
+  </div>
+  <div class="card-body">
+    <h3 class="chart-title">Electrical power transfer P<sub>e</sub> versus rotor angle δ</h3>
+    <canvas id="powerAngle"></canvas>
+  </div>
+</div>
+
+<div class="grid">
+
+<div class="card">
+  <div class="card-header">6. Rotor Angle Response</div>
+  <div class="card-body">
+    <canvas id="rotorChart"></canvas>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">7. Electrical Power Response</div>
+  <div class="card-body">
+    <canvas id="powerChart"></canvas>
+  </div>
+</div>
+
+</div>
+
+<div class="card">
+  <div class="card-header">8. Stability Assessment</div>
+  <div class="card-body">
+
+    <div class="grid3">
+
+      <div class="metric">
+        <div class="metric-title">Maximum rotor angle</div>
+        <div class="metric-value" id="maxAngle">—</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-title">Critical clearing angle</div>
+        <div class="metric-value" id="criticalAngle">—</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-title">Stability margin</div>
+        <div class="metric-value" id="margin">—</div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:18px">
+      <div style="display:flex;justify-content:space-between">
+        <strong>Stability index</strong>
+        <span id="status" class="status stable">Stable</span>
+      </div>
+
+      <div class="stability-bar">
+        <div id="stabilityFill" class="stability-fill good"></div>
+      </div>
+    </div>
+
+    <p id="assessment" class="explanation" style="margin-top:15px"></p>
+
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">9. Comparative Results</div>
+  <div class="card-body">
+
+    <table>
+      <thead>
+        <tr>
+          <th>Case</th>
+          <th>Compensation</th>
+          <th>X<sub>eq</sub> (pu)</th>
+          <th>P<sub>max</sub> (pu)</th>
+          <th>Max δ</th>
+          <th>Stability</th>
+        </tr>
+      </thead>
+      <tbody id="comparison"></tbody>
+    </table>
+
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">10. Interpretation for Students</div>
+  <div class="card-body explanation">
+
+    <p>
+      <strong>Uncompensated:</strong>
+      The transmission line has its original reactance. During a severe disturbance,
+      the accelerating power may become large and the rotor angle can increase
+      significantly.
+    </p>
+
+    <p>
+      <strong>TCSC:</strong>
+      The Thyristor Controlled Series Capacitor changes the effective series reactance.
+      Reducing the effective reactance increases the maximum transferable electrical
+      power according to the power-angle equation.
+    </p>
+
+    <p>
+      <strong>SSSC:</strong>
+      The Static Synchronous Series Compensator injects a controllable series voltage.
+      In this simplified model its stabilizing effect is represented as an effective
+      reduction of transmission reactance together with dynamic damping.
+    </p>
+
+    <p>
+      <strong>UPFC:</strong>
+      The Unified Power Flow Controller combines series and shunt converter functions.
+      It provides simultaneous control of voltage magnitude, transmission impedance
+      and phase angle, giving the strongest stabilization in this educational model.
+    </p>
+
+    <div class="note">
+      <strong>Important:</strong> This simulation is an educational reduced-order model.
+      A detailed electromagnetic-transient study would require a full network model,
+      generator excitation/governor models, converter controls, protection and
+      switching dynamics.
+    </div>
+
+  </div>
+</div>
+
+</main>
+
+<footer>
+  Made with ❤️ by <strong>Rushabh Vanara</strong><br>
+  Electrical engineering department, Government Polytechnic Junagadh
+</footer>
+
+<script>
+/* ============================================================
+   FACTS VIRTUAL LAB
+   Educational numerical simulation
+   ============================================================ */
+
+const cases = {
+  uncompensated:{
+    name:"Uncompensated",
+    subtitle:"No series/shunt compensation",
+    factor:1.00,
+    damping:0.00,
+    color:"#607d8b",
+    compensation:"None"
+  },
+  tcsc:{
+    name:"TCSC",
+    subtitle:"Thyristor Controlled Series Capacitor",
+    factor:.70,
+    damping:.12,
+    color:"#1976d2",
+    compensation:"Series capacitive compensation"
+  },
+  sssc:{
+    name:"SSSC",
+    subtitle:"Static Synchronous Series Compensator",
+    factor:.62,
+    damping:.18,
+    color:"#16a085",
+    compensation:"Controllable series voltage"
+  },
+  upfc:{
+    name:"UPFC",
+    subtitle:"Unified Power Flow Controller",
+    factor:.52,
+    damping:.27,
+    color:"#7e57c2",
+    compensation:"Series + shunt converter"
+  }
+};
+
+let activeCase="uncompensated";
+let lastResults={};
+
+const $ = id => document.getElementById(id);
+
+function getParams(){
+  return {
+    Pm:parseFloat($("pm").value),
+    H:parseFloat($("H").value),
+    delta0:parseFloat($("delta").value),
+    faultTime:parseFloat($("faultTime").value),
+    X:parseFloat($("xline").value),
+    V:parseFloat($("volt").value)
+  };
+}
+
+function updateLabels(){
+  $("pmVal").textContent=parseFloat($("pm").value).toFixed(2)+" pu";
+  $("hVal").textContent=parseFloat($("H").value).toFixed(1)+" s";
+  $("deltaVal").textContent=$("delta").value+"°";
+  $("faultVal").textContent=parseFloat($("faultTime").value).toFixed(3)+" s";
+  $("xVal").textContent=parseFloat($("xline").value).toFixed(2)+" pu";
+  $("vVal").textContent=parseFloat($("volt").value).toFixed(2)+" pu";
+}
+
+document.querySelectorAll("input").forEach(x=>{
+  x.addEventListener("input",()=>{
+    updateLabels();
+    runSimulation();
+  });
+});
+
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    activeCase=tab.dataset.case;
+    updateDiagram();
+    runSimulation();
+  });
+});
+
+function updateDiagram(){
+  const c=cases[activeCase];
+
+  $("factsTitle").textContent=c.name;
+  $("factsSubtitle").textContent=c.subtitle;
+
+  if(activeCase==="uncompensated"){
+    $("factsValue").innerHTML="Xeq = X";
+  }
+  else{
+    $("factsValue").innerHTML=
+      "Xeq ≈ "+c.factor+"X";
+  }
+}
+
+function calculateElectricalPower(delta, params, fault=false){
+  const c=cases[activeCase];
+
+  let Xeq=params.X*c.factor;
+
+  let E=1.10;
+
+  if(fault){
+    Xeq=params.X*3.0;
+  }
+
+  let Pmax=(E*params.V)/Xeq;
+
+  let Pe=Pmax*Math.sin(delta);
+
+  if(!fault){
+    /* SSSC / UPFC damping contribution */
+    Pe += c.damping*0.10*Math.sin(delta);
+  }
+
+  return Math.max(0,Pe);
+}
+
+function runSimulation(){
+
+  const p=getParams();
+  const c=cases[activeCase];
+
+  const dt=.002;
+  const total=5.0;
+
+  let t=[];
+  let delta=[];
+  let power=[];
+
+  let d=p.delta0*Math.PI/180;
+  let omega=0;
+
+  let maxAngle=p.delta0;
+
+  /*
+    Simplified swing equation:
+       d²δ/dt² = ws/(2H) (Pm-Pe)
+  */
+
+  const ws=2*Math.PI*50;
+
+  for(let time=0;time<=total;time+=dt){
+
+    let fault=time < p.faultTime;
+
+    let Pe=calculateElectricalPower(d,p,fault);
+
+    let accel=ws/(2*p.H)*(p.Pm-Pe);
+
+    /*
+      Additional damping supplied by FACTS controllers.
+      This is intentionally simplified for laboratory visualization.
+    */
+    accel -= c.damping*omega*2.0;
+
+    omega += accel*dt;
+    d += omega*dt;
+
+    /* numerical damping to prevent unrealistic long-term drift */
+    omega *= .999;
+
+    let angleDeg=d*180/Math.PI;
+
+    if(angleDeg>maxAngle) maxAngle=angleDeg;
+
+    t.push(time);
+    delta.push(angleDeg);
+    power.push(Pe);
+  }
+
+  const E=1.10;
+  const Xeq=p.X*c.factor;
+  const Pmax=(E*p.V)/Xeq;
+
+  let ratio=Math.min(.999,Math.max(.001,p.Pm/Pmax));
+  let criticalAngle=Math.acos(ratio)*180/Math.PI;
+
+  let margin=criticalAngle-maxAngle;
+
+  /*
+    Stability score is pedagogical rather than a formal
+    IEEE transient-stability index.
+  */
+  let score=100-Math.max(0,(maxAngle-criticalAngle))*1.35;
+
+  if(score<0) score=0;
+  if(score>100) score=100;
+
+  let stable=maxAngle < 170 && margin>0;
+
+  lastResults[activeCase]={
+    maxAngle,
+    criticalAngle,
+    margin,
+    score,
+    Pmax,
+    Xeq,
+    t,
+    delta,
+    power
+  };
+
+  $("maxAngle").textContent=maxAngle.toFixed(1)+"°";
+  $("criticalAngle").textContent=criticalAngle.toFixed(1)+"°";
+  $("margin").textContent=(margin>=0?"+":"")+margin.toFixed(1)+"°";
+
+  $("stabilityFill").style.width=score+"%";
+
+  let status=$("status");
+
+  if(stable){
+    status.textContent="● Stable";
+    status.className="status stable";
+    $("stabilityFill").className="stability-fill good";
+  }
+  else if(score>45){
+    status.textContent="● Marginal";
+    status.className="status warning";
+    $("stabilityFill").className="stability-fill medium";
+  }
+  else{
+    status.textContent="● Unstable";
+    status.className="status critical";
+    $("stabilityFill").className="stability-fill bad";
+  }
+
+  $("assessment").innerHTML=
+    `<strong>${c.name}:</strong>
+    The maximum simulated rotor angle is
+    <strong>${maxAngle.toFixed(1)}°</strong>.
+    The estimated critical angle is
+    <strong>${criticalAngle.toFixed(1)}°</strong>.
+    Therefore the calculated stability margin is
+    <strong>${margin.toFixed(1)}°</strong>.
+    Increasing compensation raises the theoretical power-transfer limit
+    by reducing the effective series reactance.`;
+
+  updateCalculation(p,c,Pmax,Xeq,criticalAngle);
+
+  drawPowerAngle();
+  drawRotorChart();
+  drawPowerChart();
+  updateComparison();
+}
+
+function updateCalculation(p,c,Pmax,Xeq,criticalAngle){
+
+  const Pe0=Pmax*Math.sin(p.delta0*Math.PI/180);
+
+  $("calculation").innerHTML=`
+    <strong>Current case: ${c.name}</strong><br><br>
+
+    Effective reactance:
+    <math>
+      <mrow>
+        <msub><mi>X</mi><mi>eq</mi></msub>
+        <mo>=</mo>
+        <mn>${Xeq.toFixed(3)}</mn>
+        <mtext> pu</mtext>
+      </mrow>
+    </math>
+
+    <br><br>
+
+    Maximum power transfer:
+    <math>
+      <mrow>
+        <msub><mi>P</mi><mi>max</mi></msub>
+        <mo>=</mo>
+        <mfrac>
+          <msub><mi>E</mi><mo>′</mo></msub>
+          <msub><mi>X</mi><mi>eq</mi></msub>
+        </mfrac>
+        <mi>V</mi>
+        <mo>=</mo>
+        <mfrac>
+          <mn>1.10</mn>
+          <mn>${Xeq.toFixed(3)}</mn>
+        </mfrac>
+        <mo>×</mo>
+        <mn>${p.V.toFixed(2)}</mn>
+        <mo>=</mo>
+        <strong>${Pmax.toFixed(2)}</strong>
+        <mtext> pu</mtext>
+      </mrow>
+    </math>
+
+    <br><br>
+
+    Initial electrical power:
+    <math>
+      <mrow>
+        <msub><mi>P</mi><mi>e0</mi></msub>
+        <mo>=</mo>
+        <msub><mi>P</mi><mi>max</mi></msub>
+        <mi>sin</mi>
+        <mo>(</mo>
+        <mn>${p.delta0}</mn>
+        <mo>°</mo>
+        <mo>)</mo>
+        <mo>=</mo>
+        <strong>${Pe0.toFixed(2)}</strong>
+        <mtext> pu</mtext>
+      </mrow>
+    </math>
+
+    <br><br>
+
+    Estimated critical angle:
+    <strong>${criticalAngle.toFixed(1)}°</strong>.
+  `;
+}
+
+function setupCanvas(canvas){
+
+  const rect=canvas.getBoundingClientRect();
+
+  const dpr=window.devicePixelRatio||1;
+
+  canvas.width=rect.width*dpr;
+  canvas.height=rect.height*dpr;
+
+  const ctx=canvas.getContext("2d");
+
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  return {
+    ctx,
+    w:rect.width,
+    h:rect.height
+  };
+}
+
+function drawAxes(ctx,w,h,xLabel,yLabel){
+
+  const left=55;
+  const right=18;
+  const top=25;
+  const bottom=45;
+
+  ctx.strokeStyle="#b8c7d4";
+  ctx.lineWidth=1;
+
+  ctx.beginPath();
+  ctx.moveTo(left,top);
+  ctx.lineTo(left,h-bottom);
+  ctx.lineTo(w-right,h-bottom);
+  ctx.stroke();
+
+  ctx.fillStyle="#627d98";
+  ctx.font="11px Segoe UI";
+
+  ctx.fillText(yLabel,8,18);
+  ctx.fillText(xLabel,w/2-25,h-10);
+
+  return {left,right,top,bottom};
+}
+
+function drawPowerAngle(){
+
+  const canvas=$("powerAngle");
+  const {ctx,w,h}=setupCanvas(canvas);
+  const a=drawAxes(ctx,w,h,"Rotor angle δ (degrees)","Pₑ (pu)");
+
+  const p=getParams();
+
+  let maxY=2.5;
+
+  /* grid */
+  ctx.strokeStyle="#edf1f5";
+  for(let y=0;y<=5;y++){
+    let py=a.top+(h-a.top-a.bottom)*y/5;
+    ctx.beginPath();
+    ctx.moveTo(a.left,py);
+    ctx.lineTo(w-a.right,py);
+    ctx.stroke();
+
+    ctx.fillStyle="#829ab1";
+    ctx.fillText((maxY*(5-y)/5).toFixed(1),20,py+4);
+  }
+
+  for(let x=0;x<=6;x++){
+    let px=a.left+(w-a.left-a.right)*x/6;
+    ctx.beginPath();
+    ctx.moveTo(px,a.top);
+    ctx.lineTo(px,h-a.bottom);
+    ctx.stroke();
+
+    ctx.fillStyle="#829ab1";
+    ctx.fillText((x*30),px-8,h-a.bottom+19);
+  }
+
+  Object.entries(cases).forEach(([key,c])=>{
+
+    let Xeq=p.X*c.factor;
+    let Pmax=1.10*p.V/Xeq;
+
+    ctx.strokeStyle=c.color;
+    ctx.lineWidth=key===activeCase?3.2:1.6;
+
+    ctx.beginPath();
+
+    for(let deg=0;deg<=180;deg+=1){
+
+      let pe=Pmax*Math.sin(deg*Math.PI/180);
+
+      let x=a.left+(w-a.left-a.right)*deg/180;
+      let y=(h-a.bottom)-
+            (pe/maxY)*(h-a.top-a.bottom);
+
+      if(deg===0)ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    }
+
+    ctx.stroke();
+  });
+
+  /* mechanical power */
+  ctx.strokeStyle="#e74c3c";
+  ctx.setLineDash([7,5]);
+  ctx.lineWidth=2;
+
+  let py=(h-a.bottom)-
+         (p.Pm/maxY)*(h-a.top-a.bottom);
+
+  ctx.beginPath();
+  ctx.moveTo(a.left,py);
+  ctx.lineTo(w-a.right,py);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle="#e74c3c";
+  ctx.fillText("Pₘ",w-35,py-6);
+
+  /* legend */
+  let lx=70;
+  let ly=35;
+
+  Object.entries(cases).forEach(([key,c],i)=>{
+    ctx.fillStyle=c.color;
+    ctx.fillRect(lx+i*125,ly,20,3);
+
+    ctx.fillStyle="#334e68";
+    ctx.font="11px Segoe UI";
+    ctx.fillText(c.name,lx+25+i*125,ly+4);
+  });
+}
+
+function drawRotorChart(){
+
+  const canvas=$("rotorChart");
+  const {ctx,w,h}=setupCanvas(canvas);
+  const a=drawAxes(ctx,w,h,"Time (s)","Rotor angle δ (degrees)");
+
+  let result=lastResults[activeCase];
+
+  let maxY=Math.max(180,
+    Math.ceil(result.maxAngle/20)*20);
+
+  for(let i=0;i<=6;i++){
+
+    let y=a.top+(h-a.top-a.bottom)*i/6;
+
+    ctx.strokeStyle="#edf1f5";
+    ctx.beginPath();
+    ctx.moveTo(a.left,y);
+    ctx.lineTo(w-a.right,y);
+    ctx.stroke();
+
+    ctx.fillStyle="#829ab1";
+    ctx.fillText(
+      (maxY*(6-i)/6).toFixed(0),
+      20,y+4
+    );
+  }
+
+  for(let i=0;i<=5;i++){
+    let x=a.left+(w-a.left-a.right)*i/5;
+
+    ctx.strokeStyle="#edf1f5";
+    ctx.beginPath();
+    ctx.moveTo(x,a.top);
+    ctx.lineTo(x,h-a.bottom);
+    ctx.stroke();
+
+    ctx.fillStyle="#829ab1";
+    ctx.fillText((i).toFixed(0),x-4,h-a.bottom+19);
+  }
+
+  /* critical angle */
+  ctx.strokeStyle="#f39c12";
+  ctx.setLineDash([5,5]);
+
+  let cy=(h-a.bottom)-
+    (result.criticalAngle/maxY)*(h-a.top-a.bottom);
+
+  ctx.beginPath();
+  ctx.moveTo(a.left,cy);
+  ctx.lineTo(w-a.right,cy);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  ctx.fillStyle="#a76b00";
+  ctx.fillText("δcr",w-35,cy-5);
+
+  /* angle curve */
+  ctx.strokeStyle=cases[activeCase].color;
+  ctx.lineWidth=2.8;
+
+  ctx.beginPath();
+
+  result.t.forEach((time,i)=>{
+
+    let x=a.left+
+      (w-a.left-a.right)*time/5;
+
+    let y=(h-a.bottom)-
+      (result.delta[i]/maxY)*(h-a.top-a.bottom);
+
+    if(i===0)ctx.moveTo(x,y);
+    elsectx.lineTo(x,y);
+  });
+
+  ctx.stroke();
+
+  /* fault clearing marker */
+  let p=getParams();
+  let fx=a.left+
+    (w-a.left-a.right)*p.faultTime/5;
+
+  ctx.strokeStyle="#e74c3c";
+  ctx.setLineDash([6,4]);
+
+  ctx.beginPath();
+  ctx.moveTo(fx,a.top);
+  ctx.lineTo(fx,h-a.bottom);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  ctx.fillStyle="#e74c3c";
+  ctx.fillText("Fault cleared",Math.min(fx+5,w-90),a.top+14);
+}
+
+function drawPowerChart(){
+
+  const canvas=$("powerChart");
+  const {ctx,w,h}=setupCanvas(canvas);
+  const a=drawAxes(ctx,w,h,"Time (s)","Electrical power Pₑ (pu)");
+
+  const result=lastResults[activeCase];
+
+  let maxY=Math.max(
+    1.5,
+    Math.ceil(Math.max(...result.power)/.5)*.5
+  );
+
+  for(let i=0;i<=5;i++){
+
+    let y=a.top+(h-a.top-a.bottom)*i/5;
+
+    ctx.strokeStyle="#edf1f5";
+    ctx.beginPath();
+    ctx.moveTo(a.left,y);
+    ctx.lineTo(w-a.right,y);
+    ctx.stroke();
+
+    ctx.fillStyle="#829ab1";
+    ctx.fillText(
+      (maxY*(5-i)/5).toFixed(1),
+      20,y+4
+    );
+  }
+
+  ctx.strokeStyle=cases[activeCase].color;
+  ctx.lineWidth=2.8;
+
+  ctx.beginPath();
+
+  result.t.forEach((time,i)=>{
+
+    let x=a.left+
+      (w-a.left-a.right)*time/5;
+
+    let y=(h-a.bottom)-
+      (result.power[i]/maxY)*(h-a.top-a.bottom);
+
+    if(i===0)ctx.moveTo(x,y);
+    elsectx.lineTo(x,y);
+  });
+
+  ctx.stroke();
+
+  const p=getParams();
+
+  let fx=a.left+
+    (w-a.left-a.right)*p.faultTime/5;
+
+  ctx.strokeStyle="#e74c3c";
+  ctx.setLineDash([6,4]);
+
+  ctx.beginPath();
+  ctx.moveTo(fx,a.top);
+  ctx.lineTo(fx,h-a.bottom);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  ctx.fillStyle="#e74c3c";
+  ctx.fillText("Clearing",Math.min(fx+5,w-65),a.top+15);
+}
+
+function updateComparison(){
+
+  const p=getParams();
+
+  let html="";
+
+  Object.entries(cases).forEach(([key,c])=>{
+
+    const Xeq=p.X*c.factor;
+    const Pmax=1.10*p.V/Xeq;
+
+    let result=lastResults[key];
+
+    if(!result){
+
+      /* quick comparison simulation */
+      result=simulateCase(key,p);
+      lastResults[key]=result;
+    }
+
+    let stable=result.maxAngle<170 && result.margin>0;
+
+    html+=`
+      <tr class="${key===activeCase?'highlight':''}">
+        <td><strong>${c.name}</strong></td>
+        <td>${c.compensation}</td>
+        <td>${Xeq.toFixed(2)}</td>
+        <td>${Pmax.toFixed(2)}</td>
+        <td>${result.maxAngle.toFixed(1)}°</td>
+        <td>
+          <span class="status ${stable?'stable':'critical'}">
+            ${stable?'Stable':'Unstable'}
+          </span>
+        </td>
+      </tr>
+    `;
+  });
+
+  $("comparison").innerHTML=html;
+}
+
+function simulateCase(key,p){
+
+  const c=cases[key];
+
+  const dt=.004;
+  const total=5;
+
+  let d=p.delta0*Math.PI/180;
+  let omega=0;
+
+  let maxAngle=p.delta0;
+
+  const ws=2*Math.PI*50;
+
+  for(let time=0;time<=total;time+=dt){
+
+    let fault=time<p.faultTime;
+
+    let Xeq=fault?p.X*3:p.X*c.factor;
+
+    let Pmax=1.10*p.V/Xeq;
+
+    let Pe=Pmax*Math.sin(d);
+
+    Pe+=c.damping*.1*Math.sin(d);
+
+    let accel=ws/(2*p.H)*(p.Pm-Pe);
+
+    accel-=c.damping*omega*2;
+
+    omega+=accel*dt;
+    d+=omega*dt;
+
+    omega*=.999;
+
+    let deg=d*180/Math.PI;
+
+    if(deg>maxAngle)maxAngle=deg;
+  }
+
+  const Xeq=p.X*c.factor;
+  const Pmax=1.10*p.V/Xeq;
+
+  let ratio=Math.min(.999,p.Pm/Pmax);
+  let criticalAngle=Math.acos(ratio)*180/Math.PI;
+
+  return {
+    maxAngle,
+    criticalAngle,
+    margin:criticalAngle-maxAngle
+  };
+}
+
+function resetSimulation(){
+
+  $("pm").value=.80;
+  $("H").value=5;
+  $("delta").value=30;
+  $("faultTime").value=.12;
+  $("xline").value=.80;
+  $("volt").value=1;
+
+  activeCase="uncompensated";
+
+  document.querySelectorAll(".tab")
+    .forEach(t=>t.classList.remove("active"));
+
+  document.querySelector('[data-case="uncompensated"]')
+    .classList.add("active");
+
+  updateLabels();
+  updateDiagram();
+  runSimulation();
+}
+
+function applySevereFault(){
+
+  $("faultTime").value=.25;
+  $("pm").value=1.0;
+
+  updateLabels();
+  runSimulation();
+}
+
+/* Responsive redraw */
+window.addEventListener("resize",()=>{
+  if(lastResults[activeCase]){
+    drawPowerAngle();
+    drawRotorChart();
+    drawPowerChart();
+  }
+});
+
+updateLabels();
+updateDiagram();
+runSimulation();
+
+</script>
+
+</body>
+</html>
